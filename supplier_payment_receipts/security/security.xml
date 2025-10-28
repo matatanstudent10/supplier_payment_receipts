@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="admin_treasury_financial" model="res.groups">
+            <field name="name">Administrador Gestión Tesoreria</field>
+        </record>
+        <record id="user_treasury_financial" model="res.groups">
+            <field name="name">Usuario Gestión Tesoreria</field>
+        </record>
+
+    </data>
+</odoo>

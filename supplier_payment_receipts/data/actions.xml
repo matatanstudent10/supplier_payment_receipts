@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Template de correo corregido sin errores de sintaxis -->
+        <record id="mail_template_supplier_payment_receipt_corrected" model="mail.template">
+            <field name="name">Comprobante de Egreso - Proveedor (Corregido)</field>
+            <field name="model_id" ref="model_supplier_payment_receipt"/>
+            <field name="subject">{{ object.company_id.name }} Comprobante de Egreso ({{ object.name or 'n/a' }})</field>
+            <field name="email_from">{{ (object.company_id.email or user.email) }}</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="lang">{{ object.partner_id.lang or user.lang }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 20px; font-family: Arial, sans-serif; font-size: 14px; color: #333; background-color: #f9f9f9;">
+    
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #8F5B92 0%, #A0658A 100%); color: white; padding: 30px 20px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: 300;"><t t-out="object.company_id.name"/></h1>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3);">
+                <h2 style="margin: 0; font-size: 20px; font-weight: 400;">COMPROBANTE DE EGRESO</h2>
+                <p style="margin: 10px 0 0 0; font-size: 18px; font-weight: 600;"><t t-out="object.name"/></p>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div style="padding: 30px 20px;">
+            
+            <!-- Saludo -->
+            <div style="margin-bottom: 25px;">
+                <p style="margin: 0 0 15px 0; font-size: 16px;">
+                    Estimado/a <strong><t t-out="object.partner_id.name"/></strong>,
+                </p>
+                <p style="margin: 0; color: #666; line-height: 1.6;">
+                    Por medio del presente le informamos que se ha registrado el siguiente pago a su favor:
+                </p>
+            </div>
+            
+            <!-- Información del Pago -->
+            <div style="background-color: #f8f9fa; border-radius: 6px; padding: 20px; margin-bottom: 25px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #495057; width: 40%;">Fecha de Pago:</td>
+                        <td style="padding: 8px 0;"><t t-out="object.date"/></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #495057;">Método de Pago:</td>
+                        <td style="padding: 8px 0;"><t t-out="object.payment_method_line_id.name"/></td>
+                    </tr>
+                    <tr t-if="object.store_id">
+                        <td style="padding: 8px 0; font-weight: 600; color: #495057;">Sucursal:</td>
+                        <td style="padding: 8px 0;"><t t-out="object.store_id.name"/></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 15px 0 8px 0; font-weight: 600; color: #495057; font-size: 16px;">Monto Total:</td>
+                        <td style="padding: 15px 0 8px 0; font-size: 20px; font-weight: 700; color: #28a745;">
+                            <t t-out="object.amount_total" t-options="{'widget': 'monetary', 'display_currency': object.currency_id}"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Documentos Pagados o Anticipo -->
+            <t t-set="invoice_lines" t-value="object.line_ids.filtered(lambda l: l.cuentas_por_pagar and l.account_move_line_id)"/>
+            
+            <t t-if="invoice_lines">
+                <!-- Facturas Pagadas -->
+                <div style="margin-bottom: 25px;">
+                    <h3 style="margin: 0 0 15px 0; color: #495057; font-size: 18px; border-bottom: 2px solid #e9ecef; padding-bottom: 8px;">
+                        📄 Documentos Pagados
+                    </h3>
+                    <div style="background-color: white; border: 1px solid #dee2e6; border-radius: 6px; overflow: hidden;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: #8F5B92; color: white;">
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Documento</th>
+                                    <th style="padding: 12px; text-align: right; font-weight: 600;">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="invoice_lines" t-as="line">
+                                    <tr style="border-bottom: 1px solid #dee2e6;">
+                                        <td style="padding: 12px; border-right: 1px solid #dee2e6;"><t t-out="line.move_name"/></td>
+                                        <td style="padding: 12px; text-align: right; font-weight: 600;">
+                                            <t t-out="line.balance" t-options="{'widget': 'monetary', 'display_currency': object.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </t>
+            
+            <t t-else="">
+                <!-- Pago Anticipado -->
+                <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 20px; margin-bottom: 25px;">
+                    <h3 style="margin: 0 0 10px 0; color: #856404; font-size: 18px;">
+                        💰 Pago Anticipado
+                    </h3>
+                    <p style="margin: 0; color: #856404; line-height: 1.6;">
+                        Este monto de <strong><t t-out="object.amount_total" t-options="{'widget': 'monetary', 'display_currency': object.currency_id}"/></strong> 
+                        será aplicado como anticipo a futuras facturas.
+                    </p>
+                </div>
+            </t>
+            
+            <!-- Observaciones -->
+            <t t-if="object.memo">
+                <div style="background-color: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin-bottom: 25px;">
+                    <h4 style="margin: 0 0 10px 0; color: #1976d2;">Observaciones:</h4>
+                    <p style="margin: 0; color: #1976d2; font-style: italic;"><t t-out="object.memo"/></p>
+                </div>
+            </t>
+            
+            <!-- Mensaje de cierre -->
+            <div style="border-top: 1px solid #dee2e6; padding-top: 20px; text-align: center;">
+                <p style="margin: 0 0 15px 0; color: #666; line-height: 1.6;">
+                    Agradecemos su confianza y esperamos seguir manteniendo una excelente relación comercial.
+                </p>
+                <p style="margin: 0; font-weight: 600; color: #495057;">
+                    Departamento de Contabilidad<br/>
+                    <span style="color: #6c757d;"><t t-out="object.company_id.name"/></span>
+                </p>
+            </div>
+            
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
+            <p style="margin: 0; color: #6c757d; font-size: 12px; line-height: 1.5;">
+                Este es un correo automático generado por el sistema.<br/>
+                <t t-if="object.company_id.email">
+                    Para consultas, contáctenos en: 
+                    <a t-att-href="'mailto:' + object.company_id.email" style="color: #8F5B92; text-decoration: none;"><t t-out="object.company_id.email"/></a>
+                </t>
+            </p>
+        </div>
+        
+    </div>
+    
+</div>
+            </field>
+            
+            <!-- Adjuntar automáticamente el PDF del comprobante -->
+            <field name="report_template" ref="supplier_payment_receipts.action_report_supplier_payment_receipt"/>
+            <field name="report_name">Comprobante_{{ (object.name or '').replace('/','_') }}_{{ object.partner_id.name or 'Sin_Proveedor' }}</field>
+        </record>
+
+        <!-- Acción para enviar recibo individual por email -->
+        <record id="supplier_send_payment_receipt_by_email_action_corrected" model="ir.actions.act_window">
+            <field name="name">Enviar comprobante por correo</field>
+            <field name="res_model">mail.compose.message</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context" eval="{
+                'mail_post_autofollow': True,
+                'default_composition_mode': 'comment',
+                'default_use_template': True,
+                'default_template_id': ref('supplier_payment_receipts.mail_template_supplier_payment_receipt_corrected'),
+                'custom_layout': 'mail.mail_notification_light',
+            }"/>
+            <field name="binding_model_id" ref="model_supplier_payment_receipt"/>
+            <field name="binding_view_types">form</field>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/>
+        </record>
+
+        <!-- Acción para enviar múltiples recibos por email -->
+        <record id="supplier_send_payment_receipt_by_email_action_multi_corrected" model="ir.actions.act_window">
+            <field name="name">Enviar comprobantes por correo</field>
+            <field name="res_model">mail.compose.message</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context" eval="{
+                'mailing_document_based': True,
+                'mail_post_autofollow': True,
+                'default_composition_mode': 'mass_mail',
+                'default_use_template': True,
+                'default_template_id': ref('supplier_payment_receipts.mail_template_supplier_payment_receipt_corrected'),
+                'custom_layout': 'mail.mail_notification_light',
+            }"/>
+            <field name="binding_model_id" ref="model_supplier_payment_receipt"/>
+            <field name="binding_view_types">list</field>
+        </record>
+
+    </data>
+</odoo>

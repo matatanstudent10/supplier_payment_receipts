@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Vista del formulario del wizard -->
+    <record id="view_supplier_debt_report_wizard_form" model="ir.ui.view">
+        <field name="name">supplier.debt.report.wizard.form</field>
+        <field name="model">supplier.debt.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reporte de Deudas con Proveedores">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="state" invisible="1"/>
+                            Reporte de Deudas con Proveedores
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group name="filters" string="Filtros" attrs="{'invisible': [('state', '=', 'done')]}">
+                            <field name="partner_id" placeholder="Todos los proveedores"/>
+                            <field name="date_to"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        
+                        <group name="download" string="Descarga" attrs="{'invisible': [('state', '=', 'draft')]}">
+                            <field name="file_name" readonly="1"/>
+                            <field name="excel_file" invisible="1"/>
+                        </group>
+                    </group>
+                    
+                    <div class="oe_clear"/>
+                    
+                    <div attrs="{'invisible': [('state', '=', 'done')]}" class="alert alert-info" role="alert">
+                        <p>
+                            <strong>Información:</strong>
+                            <br/>
+                            • Si no selecciona un proveedor específico, se incluirán todos los proveedores.
+                            <br/>
+                            • Solo se mostrarán las facturas con saldo pendiente hasta la fecha de corte.
+                            <br/>
+                            • Se incluirán los pagos parciales realizados hasta la fecha seleccionada.
+                            <br/>
+                            • Solo se consideran cuentas marcadas como "Cuentas por Pagar".
+                        </p>
+                    </div>
+                    
+                    <div attrs="{'invisible': [('state', '=', 'draft')]}" class="alert alert-success" role="alert">
+                        <p>
+                            <i class="fa fa-check-circle" title="Completado"/>
+                            <strong>Reporte generado exitosamente.</strong>
+                            <br/>
+                            Haga clic en "Descargar Excel" para obtener el archivo.
+                        </p>
+                    </div>
+                </sheet>
+                
+                <footer>
+                    <button string="Generar Reporte" 
+                            name="generate_report" 
+                            type="object" 
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '=', 'done')]}"/>
+                            
+                    <button string="DESCARGAR EXCEL" 
+                            name="download_excel" 
+                            type="object" 
+                            class="btn-success"
+                            attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                            
+                    <button string="Nuevo Reporte" 
+                            name="back_to_draft" 
+                            type="object" 
+                            class="btn-secondary"
+                            attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                            
+                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Acción del wizard -->
+    <record id="action_supplier_debt_report_wizard" model="ir.actions.act_window">
+        <field name="name">Reporte de Deudas con Proveedores</field>
+        <field name="res_model">supplier.debt.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+
+    <menuitem id="menu_accounting_payment_report_supplier_root"
+              parent="menu_supplier_payment_receipts_root"
+              name="Reportes"
+              sequence="13"/>    
+
+
+    <!-- Ítem del menú -->
+    <menuitem
+        id="menu_supplier_debt_report"
+        name="Deudas con Proveedores"
+        parent="menu_accounting_payment_report_supplier_root"
+        action="action_supplier_debt_report_wizard"
+        sequence="1"/>
+        
+
+</odoo>

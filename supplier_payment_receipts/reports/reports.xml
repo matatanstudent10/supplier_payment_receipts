@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Reporte Principal -->
+        <record id="action_report_supplier_payment_receipt" model="ir.actions.report">
+            <field name="name">Recibo de Pago Proveedor</field>
+            <field name="model">supplier.payment.receipt</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">supplier_payment_receipts.report_supplier_payment_receipt</field>
+            <field name="report_file">supplier_payment_receipts.report_supplier_payment_receipt</field>
+            <field name="binding_model_id" ref="model_supplier_payment_receipt"/>
+            <field name="binding_type">report</field>
+            <field name="print_report_name">'comprobante_%s_%s' % (object.name or 'DRAFT', object.partner_id.name)</field>
+        </record>
+
+        <!-- Template QWeb Mejorado con Cuadros de Resumen de Impuestos -->
+        <template id="report_supplier_payment_receipt">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <t t-foreach="docs" t-as="o">
+                        <div t-if="o.state == 'posted'" class="page">
+                            <div class="oe_structure"/>
+                            
+                            <!-- Título Principal -->
+                            <h4>
+                                <span>Comprobante de Egreso</span>
+                                <span t-field="o.name"/>
+                            </h4>
+                            <br/>
+
+                            <!-- Tabla de Información Principal -->
+                            <table style="border: 1px solid #000; font-size: 10px" class="table table-bordered text-center table-condensed">
+                                <thead>
+                                    <tr style="border: 1px solid #000" class="text-center">
+                                        <th class="text-center"><span>Proveedor</span></th>
+                                        <th style="border: 1px solid #000" class="text-center"><span>Nit / CC</span></th>
+                                        <th style="border: 1px solid #000" class="text-center"><span>Fecha</span></th>
+                                        <th style="border: 1px solid #000" class="text-center"><span>Número</span></th>
+                                        <th style="border: 1px solid #000" class="text-center"><span>Total Pagado</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border: 1px solid #000">
+                                        <td style="border: 1px solid #000; width: 20%"><span t-esc="o.partner_id.name"/></td>
+                                        <td style="border: 1px solid #000; width: 7%"><span t-esc="o.partner_id.vat or o.partner_id.fe_nit or ''"/></td>
+                                        <td style="border: 1px solid #000; width: 7%"><span t-field="o.date"/></td>
+                                        <td style="border: 1px solid #000; width: 8%"><span t-field="o.name"/></td>
+                                        <td style="text-align:right; border: 1px solid #000; width: 8%">
+                                            <span t-field="o.amount_total"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            
+                            <!-- Tabla de Facturas Pagadas con Cuadros de Resumen -->
+                            <t t-if="o.line_ids and len(o.line_ids.filtered(lambda l: l.account_move_line_id)) > 0">
+                                <div align="center" valign="middle" style="color:black; font-size: 12px">
+                                    <strong>FACTURAS PAGADAS</strong>
+                                </div>
+                                <br/>
+
+                                <table style="border: 1px solid #000; font-size: 10px" class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr style="border: 1px solid #000" class="text-center">
+                                            <th style="border: 1px solid #000" class="text-center">
+                                                <span>Factura</span>
+                                            </th> 
+                                            <th class="text-center" style="border: 1px solid #000">
+                                                <span>Fecha</span>
+                                            </th>
+                                            <th class="text-center" style="border: 1px solid #000">
+                                                <span>Descripción</span>
+                                            </th>
+                                            <th t-if="o.apply_discount" style="border: 1px solid #000" class="text-center">
+                                                <span>% Dto</span>
+                                            </th>
+                                            <th t-if="o.apply_discount" style="border: 1px solid #000" class="text-center">
+                                                <span>V. Descuento</span>
+                                            </th>  
+                                            <th class="text-center" style="border: 1px solid #000">
+                                                <span>Débito</span>
+                                            </th>
+                                            <th class="text-center" style="border: 1px solid #000">
+                                                <span>Crédito</span>
+                                            </th>
+                                            <!-- <th class="text-center" style="border: 1px solid #000">
+                                                <span>Balance</span>
+                                            </th> -->
+                                            <th class="text-center" style="border: 1px solid #000; width: 25%;">
+                                                <span>Resumen Impuestos</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="o.line_ids.filtered(lambda l: l.account_move_line_id)" t-as="line" style="color:black; border: 1px solid #000">
+                                            <t t-set="invoice" t-value="line.account_move_line_id.move_id"/>
+                                            <tr style="border: 1px solid #000">
+                                                <td style="border: 1px solid #000; width: 12%" class="text-left">
+                                                    <span t-field="line.move_name"/>
+                                                </td>
+                                                <td style="border: 1px solid #000; width: 8%" class="text-center">
+                                                    <span t-field="line.date"/>
+                                                </td>
+                                                <td style="border: 1px solid #000; width: 20%" class="text-left">
+                                                    <span t-field="line.description"/>
+                                                </td>
+
+                                                <t t-if="o.apply_discount">
+                                                    <td style="border: 1px solid #000; width: 6%" class="text-center"><span t-esc="'{} %'.format(line.discount)"/></td>
+                                                </t>  
+
+                                                <t t-if="o.apply_discount">
+                                                    <td style="border: 1px solid #000; width: 8%" class="text-center"><span t-field="line.value_discount"/></td>
+                                                </t>                                                
+
+                                                <td style="border: 1px solid #000; width: 8%" class="text-right">
+                                                    <span t-if="line.debit > 0" t-field="line.debit"/>
+                                                    <span t-else="">-</span>
+                                                </td>
+                                                <td style="border: 1px solid #000; width: 8%" class="text-right">
+                                                    <span t-if="line.credit > 0" t-field="line.credit"/>
+                                                    <span t-else="">-</span>
+                                                </td>
+                                                <!-- <td style="border: 1px solid #000; width: 8%" class="text-right">
+                                                    <span t-field="line.balance"/>
+                                                </td> -->
+                                                
+                                                <!-- Cuadro de Resumen de Impuestos por Factura -->
+                                                <td style="border: 1px solid #000; width: 25%; padding: 5px; vertical-align: top; background-color: #f8f9fa;  border: white" class="text-left">
+                                                    <div style="font-size: 9px; line-height: 1.2;  border: white">
+                                                        
+                                                        <!-- Tabla interna con bordes blancos (ocultos) -->
+                                                        <table style="width: 100%; font-size: 9px;  border: white" class="table table-sm table-bordered">
+                                                            <!-- Encabezado -->
+                                                            <tr style="border: white">
+                                                                <td style="font-weight: bold; padding: 2px; text-align: left; border-right: 1px white; border: white">Concepto:</td>
+                                                                <td style="font-weight: bold; padding: 2px; text-align: right; border: white; color:black">Valor:</td>
+                                                            </tr>
+                                                            
+                                                            <!-- Monto Libre de Impuestos (siempre mostrar si > 0) -->
+                                                            <t t-if="invoice and invoice.amount_untaxed > 0">
+                                                                <tr style="border: white">
+                                                                    <td style="padding: 1px 2px; border-right: 1px solid white; border: white">Monto Libre de Impuestos:</td>
+                                                                    <td style="padding: 1px 2px; text-align: right; border: white ; color:black">$ <span t-esc="'{:,.2f}'.format(invoice.amount_untaxed)"/></td>
+                                                                </tr>
+                                                            </t>
+                                                            
+                                                            <!-- TODOS los Impuestos Dinámicamente (solo los que tienen valor) -->
+                                                            <t t-if="invoice">
+                                                                <t t-foreach="invoice.line_ids.filtered(lambda l: l.tax_line_id and abs(l.balance) > 0)" t-as="tax_line">
+                                                                    <tr style="border: white">
+                                                                        <td style="padding: 1px 2px; border-right: 1px solid white; border: white"><t t-esc="tax_line.tax_line_id.name"/>:</td>
+                                                                        <td style="padding: 1px 2px; text-align: right; border: white ; color:black">$ <span t-esc="'{:,.2f}'.format(tax_line.balance)"/></td>
+                                                                    </tr>
+                                                                </t>
+                                                            </t>
+                                                            
+                                                            <!-- Línea separadora blanca (oculta) -->
+                                                            <tr>
+                                                                <td colspan="2" style="border-top: 1px solid white; padding: 0; border: white"></td>
+                                                            </tr>
+                                                            
+                                                            <!-- Total (siempre mostrar) -->
+                                                            <tr style="font-weight: bold;">
+                                                                <td style="padding: 2px; border-right: 1px solid white; border: white">Total:</td>
+                                                                <td style="padding: 2px; text-align: right; border: white">
+                                                                    <t t-if="invoice">
+                                                                        $ <span t-esc="'{:,.2f}'.format(invoice.amount_total)"/>
+                                                                    </t>
+                                                                    <t t-else="">$ 0,00</t>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <!-- Tabla de Líneas Adicionales (Sin documentos - Ajustes, etc.) -->
+                            <t t-if="o.line_ids and len(o.line_ids.filtered(lambda l: not l.account_move_line_id)) > 0">
+                                <div align="center" valign="middle" style="color:black; font-size: 12px">
+                                    <strong>AJUSTES Y MOVIMIENTOS ADICIONALES</strong>
+                                </div>
+                                <br/>
+
+                                <table style="border: 1px solid #000; font-size: 10px" class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr style="border: 1px solid #000" class="text-center">
+                                            <th class="text-center" style="border: 1px solid #000">
+                                                <span>Descripción</span>
+                                            </th>
+                                            <th class="text-center" style="border: 1px solid #000">
+                                                <span>Cuenta</span>
+                                            </th>
+                                            <th class="text-center" style="border: 1px solid #000">
+                                                <span>Débito</span>
+                                            </th>
+                                            <th class="text-center" style="border: 1px solid #000">
+                                                <span>Crédito</span>
+                                            </th>
+                                            <th class="text-center" style="border: 1px solid #000">
+                                                <span>Balance</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="o.line_ids.filtered(lambda l: not l.account_move_line_id)" t-as="line" style="color:black; border: 1px solid #000">
+                                            <tr style="border: 1px solid #000">
+                                                <td style="border: 1px solid #000; width: 35%" class="text-left">
+                                                    <span t-field="line.description"/>
+                                                </td>
+                                                <td style="border: 1px solid #000; width: 25%" class="text-center">
+                                                    <span t-field="line.account_id.code"/> - <span t-field="line.account_id.name"/>
+                                                </td>
+                                                <td style="border: 1px solid #000; width: 15%" class="text-right">
+                                                    <span t-if="line.debit > 0" t-field="line.debit"/>
+                                                    <span t-else="">-</span>
+                                                </td>
+                                                <td style="border: 1px solid #000; width: 15%" class="text-right">
+                                                    <span t-if="line.credit > 0" t-field="line.credit"/>
+                                                    <span t-else="">-</span>
+                                                </td>
+                                                <td style="border: 1px solid #000; width: 10%" class="text-right">
+                                                    <span t-field="line.balance"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                                <br/>
+                            </t>
+
+                            <!-- Pago Anticipado (Solo si NO hay líneas con documentos) -->
+                            <t t-if="not o.line_ids or len(o.line_ids.filtered(lambda l: l.account_move_line_id)) == 0">
+                                <div align="center" valign="middle" style="color:black; font-size: 14px; background-color: #fff3cd; padding: 15px; border: 1px solid #ffeaa7; border-radius: 5px;">
+                                    <strong>PAGO ANTICIPADO</strong><br/>
+                                    <span style="font-size: 12px;">Este monto será aplicado a futuras facturas del cliente</span><br/>
+                                    <span style="font-size: 16px; color: #d63031;">
+                                        <strong>Valor: <span t-field="o.currency_id.symbol"/> <span t-field="o.amount_total"/></strong>
+                                    </span>
+                                </div>
+                                <br/>
+                            </t>
+
+                            <!-- Resumen Final -->
+                            <table style="border: 1px solid #000; font-size: 10px; font-weight: bold;" class="table table-bordered">
+                                <tr style="background-color: #34495e; color: white;">
+                                    <td style="border: 1px solid #000; text-align: right; padding: 10px;" colspan="3">
+                                        <strong>TOTAL GENERAL DEL RECIBO:</strong>
+                                    </td>
+                                    <td style="border: 1px solid #000; text-align: right; padding: 10px; font-size: 10px;">
+                                        <strong><span t-field="o.amount_total"/></strong>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Mensaje de Agradecimiento -->
+                            <div align="center" style="margin-top: 10px;">
+                                <td align="center" valign="middle" style="color:black; font-size: 10px; font-weight: bold;">
+                                    <strong>¡Gracias por confiar en nosotros!</strong>
+                                </td>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

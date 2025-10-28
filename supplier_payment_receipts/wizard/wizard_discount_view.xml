@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista del formulario del wizard -->
+        <record id="wizard_discount_report_form_view" model="ir.ui.view">
+            <field name="name">wizard.discount.report.form</field>
+            <field name="model">wizard.discount.report</field>
+            <field name="arch" type="xml">
+                <form string="Informe de Descuentos y Creación Masiva de Pagos">
+                    <!-- <header>
+                        <button name="action_generate_excel" 
+                                string="Generar Informe Excel" 
+                                type="object" 
+                                class="btn-primary"
+                                icon="fa-file-excel-o"/>
+                        <button name="action_create_payments" 
+                                string="Crear Pagos Automáticos" 
+                                type="object" 
+                                class="btn-success"
+                                icon="fa-money"
+                                attrs="{'invisible': [('payment_journal_id', '=', False)]}"/>
+                        <button name="action_view_payments" 
+                                string="Ver Pagos Creados" 
+                                type="object" 
+                                class="btn-info"
+                                icon="fa-eye"
+                                attrs="{'invisible': [('payment_ids', '=', [])]}"/>
+                    </header> -->
+                    
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="company_id" readonly="1" force_save="1"/>
+                            </h1>
+                            <h2>Informe de Descuentos por Pago Anticipado</h2>
+                        </div>
+                        
+                        <group>
+                            <group string="Filtros de Búsqueda" name="filters">
+                                <field name="partner_ids" 
+                                       widget="many2many_tags" 
+                                       placeholder="Seleccionar proveedores específicos (vacío = todos)"/>
+                                <field name="date_from" 
+                                       string="Fecha Desde"/>
+                                <field name="date_to" 
+                                       string="Fecha Hasta"/>
+                                <field name="only_with_discount" 
+                                       string="Solo con Descuento Disponible"/>
+                            </group>
+                            
+                            <group string="Configuración de Pagos" name="payment_config">
+                                <field name="payment_journal_id" 
+                                       string="Diario de Pago"
+                                       required="0"
+                                       options="{'no_create': True, 'no_open': True}"/>
+                            </group>
+                        </group>
+                        
+                        <!-- Sección de resultados -->
+                        <notebook attrs="{'invisible': [('excel_file', '=', False), ('payment_ids', '=', [])]}">
+                            <page string="Archivo Generado" name="excel_result" 
+                                  attrs="{'invisible': [('excel_file', '=', False)]}">
+                                <group>
+                                    <group>
+                                        <field name="excel_filename" string="Nombre del Archivo" readonly="1"/>
+                                        <field name="excel_file" 
+                                               string="Descargar Excel" 
+                                               filename="excel_filename" 
+                                               readonly="1"/>
+                                    </group>
+                                </group>
+                                
+                                <div class="alert alert-success" role="alert">
+                                    <strong>¡Archivo generado exitosamente!</strong><br/>
+                                    El informe de descuentos por pago anticipado ha sido creado. 
+                                    Haga clic en el archivo para descargarlo.
+                                </div>
+                            </page>
+                            
+                            <page string="Pagos Creados" name="payments_result" 
+                                  attrs="{'invisible': [('payment_ids', '=', [])]}">
+                                <group>
+                                    <field name="payment_ids" 
+                                           string="Recibos de Pago Generados" 
+                                           readonly="1"
+                                           nolabel="1">
+                                        <tree string="Pagos con Descuentos" 
+                                              create="false" 
+                                              edit="false" 
+                                              delete="false">
+                                            <field name="name" string="Número"/>
+                                            <field name="partner_id" string="Proveedor"/>
+                                            <field name="amount_total" string="Monto Total"/>
+                                            <field name="currency_id" string="Moneda"/>
+                                            <field name="date" string="Fecha"/>
+                                            <field name="state" string="Estado"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                
+                                <div class="alert alert-success" role="alert">
+                                    <strong>¡Pagos creados exitosamente!</strong><br/>
+                                    Se han generado los recibos de pago con descuentos aplicados. 
+                                    Puede hacer doble clic en cualquier pago para editarlo o procesarlo.
+                                </div>
+                            </page>
+                        </notebook>
+                        
+                        <!-- Información de ayuda -->
+                        <div class="alert alert-info" role="alert">
+                            <h4><i class="fa fa-info-circle"/> Instrucciones de Uso:</h4>
+                            <ul>
+                                <li><strong>Filtros:</strong> Configure los filtros para obtener las facturas deseadas</li>
+                                <li><strong>Informe Excel:</strong> Genera un archivo con todas las facturas y sus descuentos disponibles</li>
+                                <li><strong>Pagos Automáticos:</strong> Crea recibos de pago aplicando automáticamente los descuentos vigentes</li>
+                                <li><strong>Solo con Descuento:</strong> Actívelo para mostrar únicamente facturas con descuento por pago anticipado válido</li>
+                            </ul>
+                        </div>
+                    </sheet>
+                    <footer>
+                        <!-- Generar solo el informe Excel -->
+                        <button string="Generar Informe Excel" 
+                                name="action_generate_excel" 
+                                type="object" 
+                                class="btn-primary"
+                                attrs="{'invisible': ['|', ('excel_file', '!=', False), ('payment_ids', '!=', [])]}"/>
+                        
+                        <!-- Crear pagos automáticos (desde estado inicial) -->
+                        <button string="CREAR PAGOS" 
+                                name="action_create_payments" 
+                                type="object" 
+                                class="btn-success"
+                                attrs="{'invisible': [('payment_journal_id', '=', False)]}"/>
+                        
+                        <!-- Descargar Excel -->
+                        <button string="DESCARGAR EXCEL" 
+                                name="action_generate_excel" 
+                                type="object" 
+                                class="btn-success"
+                                attrs="{'invisible': [('excel_file', '=', False)]}"/>
+                        
+                        <!-- Ver pagos creados -->
+                        <button string="Ver Pagos Creados" 
+                                name="action_view_payments" 
+                                type="object" 
+                                class="btn-info"
+                                attrs="{'invisible': [('payment_ids', '=', [])]}"/>
+                        
+                        <!-- Generar nuevo reporte -->
+                        <button string="Nuevo Reporte" 
+                                name="%(action_wizard_discount_report)d" 
+                                type="action" 
+                                class="btn-secondary"
+                                attrs="{'invisible': ['&amp;', ('excel_file', '=', False), ('payment_ids', '=', [])]}"/>
+                        
+                        <!-- Cancelar -->
+                        <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Acción del Wizard -->
+        <record id="action_wizard_discount_report" model="ir.actions.act_window">
+            <field name="name">Informe de Descuentos y Pagos Masivos</field>
+            <field name="res_model">wizard.discount.report</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{}</field>            
+        </record>
+
+        <!-- Menú -->
+        <menuitem id="menu_wizard_discount_report"
+                  name="Descuentos por Pago Anticipado"
+                  parent="menu_accounting_payment_report_supplier_root"
+                  action="action_wizard_discount_report"
+                  sequence="2"/>
+                          
+
+    </data>
+</odoo>

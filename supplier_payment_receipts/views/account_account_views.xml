@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    <!-- VISTA FORM -->
+		<record id="account_account_supplier_receips_form" model="ir.ui.view">
+			<field name="name">account.account.supplier.receipts.form</field>
+			<field name="model">account.account</field>
+			<field name="inherit_id" ref="account.view_account_form"/>
+			<field name="arch" type="xml">
+
+                <xpath expr="//field[@name='deprecated']" position="after">
+					<field name="cuentas_por_pagar" widget="boolean_toggle"/>
+				</xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

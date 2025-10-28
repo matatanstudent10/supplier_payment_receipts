@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="PaymentReceiptWidget">
+        <div class="oe_form_field oe_form_field_html" style="margin: 0;">
+            
+            <!-- Vista para estado DRAFT -->
+            <t t-if="!widget.recordData.state or widget.recordData.state === 'draft'">
+                <!-- Card principal más compacto -->
+                <div class="card payment-widget-card" style="border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; display: none;">
+                    
+                    <!-- Header compacto con gradiente sutil -->
+                    <div class="card-header" style="background: linear-gradient(135deg, #714B67 0%, #8B5A8C 100%); border: none; padding: 12px 16px;">
+                        <div class="row align-items-center">
+                            <div class="col-md-7">
+                                <!-- Barra de búsqueda más pequeña -->
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white border-0" style="border-radius: 6px 0 0 6px; padding: 0 8px;">
+                                            <i class="fa fa-search text-muted" style="font-size: 12px;"/>
+                                        </span>
+                                    </div>
+                                    <input type="text"
+                                           class="oe_search_value form-control border-0"
+                                           placeholder="Buscar líneas..."
+                                           style="border-radius: 0 6px 6px 0; font-size: 13px; height: 32px;" />
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-5 text-right">
+                                <!-- Botón más compacto -->
+                                <button type="button"
+                                        class="button_select_order_lines btn btn-sm"
+                                        style="font-size: 12px; padding: 6px 12px; font-weight: 500; display: none;
+                                               border-radius: 6px; transition: all 0.2s ease; border: none;
+                                               background: linear-gradient(45deg, #714B67, #8B5A8C); color: white;">
+                                    <i class="fa fa-check mr-1" style="font-size: 11px;"/> 
+                                    Confirmar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Body compacto -->
+                    <div class="card-body" style="background: #f8fafc; padding: 16px;">
+                        
+                        <!-- Estadísticas en una fila más compacta -->
+                        <div class="row">
+                            
+                            <!-- Total seleccionado - Diseño más pequeño -->
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center p-2 bg-white rounded shadow-sm" 
+                                     style="border-left: 3px solid #714B67; min-height: 50px;">
+                                    <div class="mr-2">
+                                        <div class="d-flex align-items-center justify-content-center" 
+                                             style="width: 32px; height: 32px; border-radius: 50%; background: #714B67;">
+                                            <i class="fa fa-dollar-sign text-white" style="font-size: 14px;"/>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="text-muted" style="font-size: 10px; font-weight: 600; text-transform: uppercase; margin-bottom: 2px;">
+                                            Total Seleccionado
+                                        </div>
+                                        <div class="font-weight-bold total_amount_display" 
+                                             style="font-size: 18px; line-height: 1.1; color: #714B67;">
+                                            $ 0,00
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contador de líneas - Diseño más pequeño -->
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center p-2 bg-white rounded shadow-sm" 
+                                     style="border-left: 3px solid #8B5A8C; min-height: 50px;">
+                                    <div class="mr-2">
+                                        <div class="d-flex align-items-center justify-content-center" 
+                                             style="width: 32px; height: 32px; border-radius: 50%; background: #8B5A8C;">
+                                            <i class="fa fa-list-alt text-white" style="font-size: 14px;"/>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="text-muted" style="font-size: 10px; font-weight: 600; text-transform: uppercase; margin-bottom: 2px;">
+                                            Líneas Activas
+                                        </div>
+                                        <div class="font-weight-bold selected_count_display" 
+                                             style="font-size: 16px; line-height: 1.1; color: #8B5A8C;">
+                                            0 de 0 seleccionadas
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Indicadores compactos -->
+                        <div class="mt-2">
+                            <!-- Barra de progreso más delgada -->
+                            <div class="progress mb-2" style="height: 4px; border-radius: 6px; background: #e2e8f0;">
+                                <div class="progress-bar selection-progress" 
+                                     role="progressbar" 
+                                     style="width: 0%; transition: width 0.3s ease; border-radius: 6px; 
+                                            background: linear-gradient(90deg, #714B67, #8B5A8C);"
+                                     aria-valuenow="0" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+
+                            <!-- Footer compacto -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <!-- Indicador de procesamiento más pequeño -->
+                                <div class="processing-indicator badge" 
+                                     style="display: none; font-size: 11px; padding: 4px 8px; border-radius: 4px; 
+                                            background: #f59e0b; color: white;">
+                                    <i class="fa fa-spinner fa-spin mr-1" style="font-size: 10px;"/> 
+                                    Procesando...
+                                </div>
+
+                                <!-- Texto de ayuda más discreto -->
+                                <div style="font-size: 11px; color: #64748b;">
+                                    <i class="fa fa-info-circle mr-1" style="font-size: 10px;"/> 
+                                    Selecciona las líneas para continuar
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+            <!-- Vista solo lectura compacta -->
+            <t t-if="widget.get('effective_readonly')">
+                <div class="alert" style="border-radius: 6px; border: none; background: linear-gradient(45deg, #f3e8ff, #e9d5ff); 
+                            padding: 12px 16px; margin-bottom: 0;">
+                    <i class="fa fa-eye mr-2" style="color: #714B67;"/>
+                    <span class="oe_form_char_content font-weight-medium" style="color: #714B67;"/>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_supplier_payment_receipt_user,supplier.payment.receipt.user,model_supplier_payment_receipt,account.group_account_user,1,1,1,0
+access_supplier_payment_receipt_manager,supplier.payment.receipt.manager,model_supplier_payment_receipt,account.group_account_manager,1,1,1,1
+access_supplier_payment_receipt_line_user,supplier.payment.receipt.line.user,model_supplier_payment_receipt_line,account.group_account_user,1,1,1,1
+access_supplier_payment_receipt_line_manager,supplier.payment.receipt.line.manager,model_supplier_payment_receipt_line,account.group_account_manager,1,1,1,1
+access_supplier_debt_report_wizard_user,supplier.debt.report.wizard.user,model_supplier_debt_report_wizard,account.group_account_user,1,1,1,1
+access_supplier_debt_report_wizard_manager,supplier.debt.report.wizard.manager,model_supplier_debt_report_wizard,account.group_account_manager,1,1,1,1
+access_wizard_discount_report_accountant,wizard.discount.report.accountant,model_wizard_discount_report,account.group_account_user,1,1,1,1
+access_wizard_discount_report_manager,wizard.discount.report.manager,model_wizard_discount_report,account.group_account_manager,1,1,1,1

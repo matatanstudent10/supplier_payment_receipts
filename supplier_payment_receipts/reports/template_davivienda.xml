@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="action_template_davivienda" model="ir.actions.report">
+            <field name="name">CHEQUE DAVIVIENDA</field>
+            <field name="model">supplier.payment.receipt</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">supplier_payment_receipts.report_davivienda</field>
+            <field name="report_file">supplier_payment_receipts.report_davivienda</field>
+            <field name="print_report_name">CHEQUE DAVIVIENDA</field>
+            <field name="binding_model_id" ref="account.model_account_payment"/>
+            <field name="binding_type">report</field>
+        </record>
+        
+        <record id="template_davivienda_paperformat" model="report.paperformat">
+            <field name="name">Cheque Davivienda Format</field>
+            <field name="default" eval="False"/>
+            <field name="format">custom</field>
+            <field name="page_height">182</field>
+            <field name="page_width">186</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">0</field>
+            <field name="margin_bottom">0</field>
+            <field name="margin_left">0</field>
+            <field name="margin_right">0</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">0</field>
+            <field name="dpi">96</field>
+            <field name="report_ids" eval="[(6,0,[ref('action_template_davivienda')])]" />
+        </record>
+    </data>
+    
+    <template id="report_davivienda">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="page" style="position: relative; width: 186mm; height: 182mm; margin: 0; padding: 0; font-family: sans-serif; page-break-after: auto; page-break-inside: avoid;">
+                   
+                <!-- FECHA - Separada en AÑO, MES, DIA -->
+                    <!-- Año -->
+                    <div style="position: absolute; top: 23mm; left: 157mm; font-size: 12px; font-weight: bold; width: 12mm; text-align: center;">
+                        <span t-esc="o.date.strftime('%Y')"/>
+                    </div>
+                   
+                    <!-- Mes -->
+                    <div style="position: absolute; top: 23mm; left: 176mm; font-size: 12px; font-weight: bold; width: 12mm; text-align: center;">
+                        <span t-esc="o.date.strftime('%m')"/>
+                    </div>
+                   
+                    <!-- Día -->
+                    <div style="position: absolute; top: 23mm; left: 188mm; font-size: 12px; font-weight: bold; width: 12mm; text-align: center;">
+                        <span t-esc="o.date.strftime('%d')"/>
+                    </div>
+                   
+                    <!-- MONTO con asteriscos de relleno -->
+                    <div style="position: absolute; top: 23mm; left: 211mm; font-size: 14px; font-weight: bold; width: 53mm; text-align: left; overflow: hidden; white-space: nowrap;">
+                        <t t-set="amount_str" t-value="'{:,.2f}'.format(o.amount).replace(',', '.')"/>
+                        <t t-set="amount_max_chars_num" t-value="30"/>
+                        <t t-set="amount_formatted" t-value="amount_str[:amount_max_chars_num]"/>
+                        <span t-esc="amount_formatted"/><span t-esc="'*' * (amount_max_chars_num - len(amount_formatted))"/>
+                    </div>
+
+                    <!-- PÁGUESE A LA ORDEN DE -->
+                    <div style="position: absolute; top: 38mm; left: 73mm; font-size: 11px; font-weight: bold; width: 184mm; overflow: hidden; white-space: nowrap;">
+                        <t t-set="provider_max_chars" t-value="175"/>
+                        <t t-set="provider_name_raw" t-value="(o.partner_id.name or '')"/>
+                        <t t-set="provider_name_clean" t-value="provider_name_raw.replace('á','a').replace('é','e').replace('í','i').replace('ó','o').replace('ú','u').replace('ñ','n').replace('Á','A').replace('É','E').replace('Í','I').replace('Ó','O').replace('Ú','U').replace('Ñ','N')"/>
+                        <t t-set="provider_name" t-value="provider_name_clean[:provider_max_chars]"/>
+                        <t t-set="provider_remaining_chars" t-value="provider_max_chars - len(provider_name)"/>
+                        <span t-esc="provider_name"/><span t-esc="'*' * max(0, provider_remaining_chars)"/>
+                    </div>
+                    
+                    <!-- CANTIDAD EN LETRAS con asteriscos calculados dinámicamente -->
+                    <div style="position: absolute; top: 47mm; left: 55mm; font-size: 11px; font-weight: bold; width: 199mm; overflow: hidden; white-space: nowrap;">
+                        <t t-set="amount_max_chars" t-value="155"/>
+                        <t t-set="amount_words_raw" t-value="(o.check_amount_in_words or '')"/>
+                        <t t-set="amount_words_clean" t-value="amount_words_raw.replace('á','a').replace('é','e').replace('í','i').replace('ó','o').replace('ú','u').replace('ñ','n').replace('Á','A').replace('É','E').replace('Í','I').replace('Ó','O').replace('Ú','U').replace('Ñ','N')"/>
+                        <t t-set="amount_words" t-value="amount_words_clean[:amount_max_chars]"/>
+                        <t t-set="amount_remaining_chars" t-value="amount_max_chars - len(amount_words)"/>
+                        <span t-esc="amount_words"/><span t-esc="'*' * max(0, amount_remaining_chars)"/>
+                    </div>
+
+                    <div style="position: absolute; top: 57mm; left: 42mm; font-size: 12px; font-weight: bold; width: 12mm; text-align: center;">
+                        <span>************************************</span>
+                    </div>
+
+                    <div style="position: absolute; top: 110mm; left: 300mm; text-align: center;">
+                        <t t-if="o.sellos == 'crossed'">
+                            <img src="https://www.empaquetadurasyempaques.com/web/image/3142004-a0107ee7/cruzado.png" style="width: 50mm; height: 22mm;"/>
+                        </t>
+                        <t t-if="o.sellos == 'beneficiary'">
+                            <img src="https://www.empaquetadurasyempaques.com/web/image/3142010-d65fb5ff/beneficiario.png" style="width: 50mm; height: 17mm;"/>
+                        </t>
+                    </div>
+
+                    <div style="position: absolute; top: 140mm; left: 67mm; font-size: 20px; font-weight: bold; width: 12mm; text-align: center; font-family: Arial, sans-serif;">
+                        <span t-esc="o.name"/>
+                    </div>
+
+                    <!-- TABLA DE FACTURAS DE REFERENCIA (máximo 10 líneas) -->
+                    <div style="position: absolute; top: 160mm; left: 75mm; width: 156mm; height: 80mm; font-size: 9px;">
+                        <table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid #000;">
+                                    <th style="width: 50%; text-align: left; padding: 2px; font-weight: bold;">Factura</th>
+                                    <th style="width: 40%; text-align: left; padding: 2px; font-weight: bold;">Descripcion</th>
+                                    <th style="width: 20%; text-align: left; padding: 2px; font-weight: bold;">Debito</th>
+                                    <th style="width: 25%; text-align: right; padding: 2px; font-weight: bold;">Credito</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="line_count" t-value="0"/>
+                                <t t-foreach="o.line_ids" t-as="line">
+                                    <t t-if="line_count &lt; 10">
+                                        <tr>
+                                            <td style="padding: 1px 2px; border-bottom: 1px dotted #ccc; font-size: 13px;">
+                                                <span t-field="line.account_move_line_id.move_name"/>
+                                            </td>
+                                            <td style="padding: 1px 2px; border-bottom: 1px dotted #ccc; font-size: 13px;">
+                                                <span t-field="line.description"/>
+                                            </td>
+                                            <td style="padding: 1px 2px; border-bottom: 1px dotted #ccc; text-align: left; font-size: 13px;">
+                                                <span t-esc="'{:,.2f}'.format(line.debit).replace(',', '.')"/>
+                                            </td>
+                                            <td style="padding: 1px 2px; border-bottom: 1px dotted #ccc; text-align: right; font-size: 13px;">
+                                                <span t-esc="'{:,.2f}'.format(line.credit).replace(',', '.')"/>
+                                            </td>
+                                        </tr>
+                                        <t t-set="line_count" t-value="line_count + 1"/>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                   
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

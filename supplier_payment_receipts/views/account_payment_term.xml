@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Enhanced Payment Term Form View -->
+        <record id="view_payment_term_form_enhanced" model="ir.ui.view">
+            <field name="name">account.payment.term.form.enhanced</field>
+            <field name="model">account.payment.term</field>
+            <field name="inherit_id" ref="account.view_payment_term_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="replace">
+                    <form string="Payment Terms">
+                        <sheet>
+                            <field name="active" invisible="1"/>
+                            <field name="fiscal_country_codes" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                            <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                            <div class="oe_title">
+                                <label for="name" string="Plazos de Pago"/>
+                                <h1><field name="name" placeholder="ej. 30 días"/></h1>
+                            </div>
+                            <group>
+                                <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                                <label for="early_discount"/>
+                                <div class="o_field_highlight">
+                                    <field name="early_discount"/>
+                                    <field name="discount_percentage"
+                                           class="text-end o_field_highlight o_input oe_inline"
+                                           attrs="{'invisible': [('early_discount', '=', False)]}"/>
+                                    <span attrs="{'invisible': [('early_discount', '=', False)]}"> % si se paga dentro de </span>
+                                    <field name="discount_days"
+                                           class="text-end o_field_highlight o_input oe_inline"
+                                           attrs="{'invisible': [('early_discount', '=', False)]}"/>
+                                    <span attrs="{'invisible': [('early_discount', '=', False)]}"> días</span>
+                                    <div attrs="{'invisible': [('early_discount', '=', False)]}">
+                                        <span> Impuesto reducido:
+                                            <field name="early_pay_discount_computation" class="w-auto"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </group>
+                            <group>
+                                <group string="Términos de Vencimiento">
+                                    <field name="line_ids" nolabel="1" colspan="2">
+                                        <tree string="Plazos de Pago" editable="bottom">
+                                            <field name="value_amount"/>
+                                            <field name="value" nolabel="1"/>
+                                            <field name="nb_days" string="Después de"/>
+                                            <field name="delay_type" nolabel="1"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="Vista Previa">
+                                    <field name="currency_id" invisible="1"/>
+                                    <div class="d-flex gap-2" colspan="2">
+                                        Ejemplo:
+                                        <field name="example_amount" class="oe_inline"/>
+                                        el
+                                        <field name="example_date" class="fw-bold border-bottom"/>
+                                    </div>
+                                    <div colspan="2" class="py-3 px-3" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px;">
+                                        <field name="note" placeholder="ej. Plazos de pago: 30 días después de la fecha de factura" class="border-bottom" style="background: transparent; border: none; font-style: italic; color: #6c757d;"/>
+                                        <field name="example_preview_discount" class="mt-2" style="color: #28a745; font-weight: bold;"
+                                               attrs="{'invisible': ['|', ('early_discount', '=', False), ('display_on_invoice', '=', False)]}"/>
+                                        <field name="example_preview" class="mt-2" style="color: #495057; font-weight: 500;"
+                                               attrs="{'invisible': [('display_on_invoice', '=', False)]}"/>
+                                    </div>
+                                    <div colspan="2">
+                                        <field name="display_on_invoice"/>
+                                        <label for="display_on_invoice"/>
+                                    </div>
+                                </group>
+                            </group>
+                        </sheet>
+                    </form>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Enhanced Payment Term Line Tree View -->
+        <record id="view_payment_term_line_tree_enhanced" model="ir.ui.view">
+            <field name="name">account.payment.term.line.tree.enhanced</field>
+            <field name="model">account.payment.term.line</field>
+            <field name="arch" type="xml">
+                <tree string="Líneas de Plazos de Pago" editable="bottom">
+                    <field name="value_amount"/>
+                    <field name="value" nolabel="1"/>
+                    <field name="nb_days" string="Después de"/>
+                    <field name="delay_type" nolabel="1"/>
+                    <field name="payment_id" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Enhanced Payment Term Line Form View -->
+        <record id="view_payment_term_line_form_enhanced" model="ir.ui.view">
+            <field name="name">account.payment.term.line.form.enhanced</field>
+            <field name="model">account.payment.term.line</field>
+            <field name="arch" type="xml">
+                <form string="Línea de Plazos de Pago">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="value"/>
+                                <field name="value_amount"/>
+                            </group>
+                            <group>
+                                <field name="nb_days"/>
+                                <field name="delay_type"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Widget for Payment Term Lines (if needed) -->
+        <template id="payment_term_widget_template">
+            <div class="o_payment_term_widget">
+                <t t-foreach="widget.get_lines()" t-as="line">
+                    <div class="o_payment_term_line">
+                        <span t-esc="line.value_amount"/>
+                        <span t-esc="line.value"/>
+                        <span t-esc="line.nb_days"/>
+                        <span t-esc="line.delay_type"/>
+                    </div>
+                </t>
+            </div>
+        </template>
+
+        <!-- Menu items (if needed) -->
+        <record id="action_payment_term_enhanced" model="ir.actions.act_window">
+            <field name="name">Plazos de Pago Mejorados</field>
+            <field name="res_model">account.payment.term</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="account.view_payment_term_tree"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear un nuevo plazo de pago
+                </p><p>
+                    Los plazos de pago definen las condiciones bajo las cuales un cliente o proveedor
+                    debe pagar una factura. Por ejemplo: pagar antes de 30 días, o pagar 50% ahora y 
+                    50% en 30 días con un descuento por pago anticipado del 2% si se paga dentro de 10 días.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

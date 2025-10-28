@@ -1,0 +1,112 @@
+/* CSS para el widget de recibos de pago */
+
+.payment-control-panel {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #007bff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.payment-control-panel .total_amount_display {
+    font-size: 1.2em;
+    color: #28a745 !important;
+    font-weight: bold !important;
+}
+
+.payment-control-panel .selected_count_display {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.payment-control-panel .searchInput {
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+}
+
+.payment-control-panel .searchInput:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Estilo para las líneas seleccionadas */
+.table-success {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+    border-left: 4px solid #28a745 !important;
+}
+
+.table-success td {
+    border-color: rgba(40, 167, 69, 0.2) !important;
+}
+
+/* Estilo para los checkboxes */
+.payment-line-checkbox {
+    transform: scale(1.3);
+    cursor: pointer;
+    accent-color: #28a745;
+}
+
+/* Estilo para el total en el formulario */
+.oe_subtotal_footer_separator {
+    border-top: 2px solid #007bff !important;
+    font-weight: bold !important;
+    font-size: 1.1em !important;
+    color: #007bff !important;
+    padding-top: 8px !important;
+}
+
+/* Botones mejorados */
+.payment-control-panel .btn {
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.payment-control-panel .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Inputs numéricos en la tabla */
+.o_field_monetary input,
+.o_field_float input {
+    text-align: right;
+    font-weight: 500;
+}
+
+/* Animación suave para las filas */
+.o_data_row {
+    transition: background-color 0.3s ease, border-left 0.3s ease;
+}
+
+/* Resaltar filas al hover */
+.o_data_row:hover {
+    background-color: rgba(0, 123, 255, 0.05) !important;
+}
+
+/* Estilo para campos readonly */
+.o_field_monetary.o_readonly,
+.o_field_float.o_readonly {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-weight: 500;
+}
+
+/* Iconos en el panel de control */
+.payment-control-panel .fa {
+    margin-right: 5px;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .payment-control-panel .col-md-6 {
+        text-align: center !important;
+        margin-bottom: 10px;
+    }
+    
+    .payment-control-panel .btn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+}
